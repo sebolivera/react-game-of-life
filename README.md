@@ -1,6 +1,6 @@
 # React Game Of Life
 
-At this step there is pretty much nothing, just messed around with canvas.
+Some odd behaviors because of the clustering, not sure on how to fix it yet.
 
 ## Install with
 

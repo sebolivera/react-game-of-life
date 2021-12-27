@@ -12,9 +12,9 @@ export function getRandomInt(max)
 export function random_box_muller()
 {//courbe de distribution normale de 0 à 1, centrée autour de .5
     let u = 0, v = 0;
-    while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
-    while(v === 0) v = Math.random();
-    let num = Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+    while (u === 0) u = Math.random(); //Converting [0,1) to (0,1)
+    while (v === 0) v = Math.random();
+    let num = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
     num = num / 10.0 + 0.5; // Translate to 0 -> 1
     if (num > 1 || num < 0) return random_box_muller() // resample between 0 and 1
     return num
@@ -28,7 +28,7 @@ export function getRandomBMInt(max)
 export function proximityIndex(currentCell, targetCell, clusterSize, density = 1)//cherche si currentCell est dans un rayon de clusterSize autour de targetCell. Renvoie un index de proximité (de 0 à 1). 0 si la case est plus loin que clusterSize, 1 si elle est sur la case elle-même
 {
     let distance = Math.sqrt(Math.pow(currentCell[0] - targetCell[0], 2) + Math.pow(currentCell[1] - targetCell[1], 2));
-    return (Math.max(0, (Math.abs(1-density) + clusterSize - distance) / distance));//wow c'est hardcore en fait
+    return (Math.max(0, (Math.abs(1 - density) + clusterSize - distance) / distance));//wow c'est hardcore en fait
 }
 
 export function neighbors(x, y, board)

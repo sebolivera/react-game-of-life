@@ -1,6 +1,6 @@
 # React Game Of Life
 
-Some odd behaviors because of the clustering, not sure on how to fix it yet.
+Some odd behavior because of the clustering, not sure on how to fix it yet.
 
 ## Install with
 

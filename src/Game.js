@@ -239,6 +239,7 @@ class Game extends Component {
 
     componentWillUnmount() {
         window.removeEventListener('resize', this.updateWindowDimensions);
+        clearTimeout(this.timeoutID);
     }
 
     updateWindowDimensions() {

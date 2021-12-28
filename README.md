@@ -1,6 +1,6 @@
 # React Game Of Life
 
-Some odd behavior because of the clustering, not sure on how to fix it yet.
+A lil game of life in react to learn the language.
 
 ## Install with
 
@@ -12,4 +12,4 @@ Some odd behavior because of the clustering, not sure on how to fix it yet.
 
 # How to play
 
-You don't, that's the point.
+You don't, that's the point. Just messa round with the bottom panel. You can birth/kill cells by clicking them.

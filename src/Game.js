@@ -104,7 +104,7 @@ class Game extends Component {
         if (!this.state.paused) {
             let height = this.state.board.length;
             let width = this.state.board[0].length;
-            let oldBoard = [];// .slice() et [...this.state.board] n'ont pas l'air de marcher pour du bi-dimensionnel, obligé de faire ça : ...
+            let oldBoard = [];// .slice() and [...this.state.board] don't seem to be working for two-dimensional arrays, so I had to resort to this : ...
             let board = [];
             for (let i = 0; i < this.state.board.length; i++) {
                 let oldRow = this.state.board[i].slice();
@@ -164,10 +164,10 @@ class Game extends Component {
                 listSeeds.forEach(e => {
                     let clusterSize = getRandomBMInt(this.maxClusterSize);
                     let pIndex = proximityIndex(e, [i, j], clusterSize, this.clusterDensity);
-                    if (pIndex > 0)//vérifie que la case en cours de lecture est dans le rayon clusterSize d'une case donnée et renvoie une probabilitée (de 0 à 1) de remplir la case
+                    if (pIndex > 0)
                     {
                         let r = Math.random();
-                        if (r <= pIndex || e.toString() === [i, j])//random va donner un float < 1, pIndex aussi
+                        if (r <= pIndex || e.toString() === [i, j])//random will give a float < 1, same thing for pIndex
                         {
                             newBoard[i][j] = 1;
                         }
@@ -219,7 +219,7 @@ class Game extends Component {
         let i = e.pageX - rect.left;
         let j = e.pageY - rect.top;
         const [x, y] = this.getCell(i, j);
-        if ((this.state.board !== undefined) && x < this.state.board.length && y < this.state.board[0].length) {//de temps en temps le clic est détecté en dehors de la zone
+        if ((this.state.board !== undefined) && x < this.state.board.length && y < this.state.board[0].length) {//somehow a click event will randomly be detected outside of bounds
             if (this.state.board[x][y] === 1) {
                 this.setState({ board: update(this.state.board, { [x]: { [y]: { $set: 0 } } }) }, this.draw);
                 this.goLive();

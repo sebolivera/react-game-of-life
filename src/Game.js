@@ -10,19 +10,14 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
-import {Checkbox, FormControlLabel} from "@mui/material/";
+import { Checkbox, FormControlLabel, Grid, TextField } from "@mui/material/";
 
 const { Handle } = Slider;
 
-class Game extends Component
-{
-    constructor(props)
-    {
+class Game extends Component {
+    constructor(props) {
         super(props);
-        this.width = 1400;
-        this.height = 650;
         this.canvas = createRef();
-        this.tileWidth = 10;
         this.clusterStarterPercentage = .1;
         this.maxClusterSize = 10;
         this.clusterDensity = 1;
@@ -40,15 +35,20 @@ class Game extends Component
             9: 100
         };
         this.ticks = 1000;
+        this.updateWindowDimensions = this.updateWindowDimensions.bind(this);
     }
     state = {
         board: [],
+        width: 0,
+        height: 0,
         context: null,
         paused: true,
         btnText: 'Play',
         notRestarted: true,
         gameSpeed: 1,
-        toggleGridLines: true
+        gridLines: true,
+        darkMode: true,
+        tileSize: 10
     }
 
 
@@ -57,65 +57,65 @@ class Game extends Component
         console.log('arg:', arg);
     }
 
-    goLive = () =>
-    {
+    goLive = () => {
         this.timeoutID = setTimeout(
             () => this.live(),
             this.ticks
         );
     }
 
-    draw = () =>
-    {
+    draw = () => {
         let board = this.state.board;
         let context = this.state.context;
-        let gridLines = this.state.toggleGridLines;
+        let gridLines = this.state.gridLines;
         context.beginPath();
-        context.fillStyle = "white";
-        context.fillRect(0, 0, this.width, this.height);
+        if (this.state.darkMode) {
+            context.fillStyle = "black";
+            context.strokeStyle = 'white';
+        }
+        else {
+            context.fillStyle = "white";
+            context.strokeStyle = 'black';
+        }
+        context.fillRect(0, 0, this.state.width, this.state.height);
         context.lineWidth = 0.1;
-        context.fillStyle = "red";
+        if (this.state.darkMode) {
+            context.fillStyle = "lightblue";
+        }
+        else {
+            context.fillStyle = "red";
+        }
         let height = board.length;
         let width = board[0].length;
-        for (let i = 0; i < height; i++)
-        {
-            for (let j = 0; j < width; j++)
-            {
-                if (board[i][j] === 1)
-                {
-                    context.fillRect(j * this.tileWidth, i * this.tileWidth, this.tileWidth, this.tileWidth);
+        for (let i = 0; i < height; i++) {
+            for (let j = 0; j < width; j++) {
+                if (board[i][j] === 1) {
+                    context.fillRect(j * this.state.tileSize, i * this.state.tileSize, this.state.tileSize, this.state.tileSize);
                 }
-                if (gridLines)
-                {
-                    context.strokeRect(j * this.tileWidth, i * this.tileWidth, this.tileWidth, this.tileWidth);
+                if (gridLines) {
+                    context.strokeRect(j * this.state.tileSize, i * this.state.tileSize, this.state.tileSize, this.state.tileSize);
                 }
             }
         }
-        this.setState({ context: context }, this.goLive);
+        this.setState({ context: context });
     }
 
-    live = () =>
-    {
-        if (!this.state.paused)
-        {
+    live = () => {
+        if (!this.state.paused) {
             let height = this.state.board.length;
             let width = this.state.board[0].length;
             let oldBoard = [];// .slice() et [...this.state.board] n'ont pas l'air de marcher pour du bi-dimensionnel, obligé de faire ça : ...
             let board = [];
-            for (let i = 0; i < this.state.board.length; i++)
-            {
+            for (let i = 0; i < this.state.board.length; i++) {
                 let oldRow = this.state.board[i].slice();
                 let row = this.state.board[i].slice();
                 oldBoard.push(oldRow);
                 board.push(row);
             }
-            for (let i = 0; i < height; i++)
-            {
-                for (let j = 0; j < width; j++)
-                {
+            for (let i = 0; i < height; i++) {
+                for (let j = 0; j < width; j++) {
                     let n = neighbors(i, j, oldBoard);
-                    switch (n)
-                    {
+                    switch (n) {
                         case 2:
                             break;
                         case 3:
@@ -127,49 +127,41 @@ class Game extends Component
                 }
             }
             this.setState({ board: board }, this.draw);
+            this.goLive();
         }
     }
 
-    update = () =>
-    {
-        if (this.state.notRestarted)
-        {
+    update = () => {
+        if (this.state.notRestarted) {
             this.draw();
+            this.goLive();
         }
     }
 
 
-    getCell = (i, j) =>
-    {
-        let x = Math.max(0, Math.min(this.state.board.length - 1, Math.floor(j / this.tileWidth)));
-        let y = Math.max(0, Math.min(this.state.board[0].length - 1, Math.floor(i / this.tileWidth)));
+    getCell = (i, j) => {
+        let x = Math.max(0, Math.min(this.state.board.length - 1, Math.floor(j / this.state.tileSize)));
+        let y = Math.max(0, Math.min(this.state.board[0].length - 1, Math.floor(i / this.state.tileSize)));
         return [x, y];
     }
 
-    pause = () =>
-    {
-        if (this.state.paused)
-        {
+    pause = () => {
+        if (this.state.paused) {
             this.setState({ btnText: 'Pause' });
-            this.setState({ paused: false });
+            this.setState({ paused: false }, this.update);
         }
-        else
-        {
+        else {
             this.setState({ btnText: 'Play' });
             this.setState({ paused: true });
         }
 
     }
 
-    seedClusters = (board, listSeeds) =>
-    {
+    seedClusters = (board, listSeeds) => {
         let newBoard = [...board];
-        for (let i = 0; i < newBoard.length; i++)
-        {
-            for (let j = 0; j < newBoard[0].length; j++)
-            {
-                listSeeds.forEach(e =>
-                {
+        for (let i = 0; i < newBoard.length; i++) {
+            for (let j = 0; j < newBoard[0].length; j++) {
+                listSeeds.forEach(e => {
                     let clusterSize = getRandomBMInt(this.maxClusterSize);
                     let pIndex = proximityIndex(e, [i, j], clusterSize, this.clusterDensity);
                     if (pIndex > 0)//vérifie que la case en cours de lecture est dans le rayon clusterSize d'une case donnée et renvoie une probabilitée (de 0 à 1) de remplir la case
@@ -187,19 +179,16 @@ class Game extends Component
         return newBoard;
     }
 
-    seedBoard()
-    {
+    seedBoard() {
         let board = [...this.state.board];
         let height = board.length;
         let width = board[0].length;
         let liveCells = (this.clusterStarterPercentage / 100) * (width * height);
         let listSeeds = [];
-        while (liveCells > 0)
-        {
+        while (liveCells > 0) {
             let x = getRandomInt(height);
             let y = getRandomInt(width);
-            if (board[x][y] !== 1)
-            {
+            if (board[x][y] !== 1) {
                 board[x][y] = 1;
                 listSeeds.push([x, y]);
                 liveCells--;
@@ -207,19 +196,17 @@ class Game extends Component
         }
         board = this.seedClusters(board, listSeeds);
 
-        this.setState({ board: board }, this.update);
+        this.setState({ board: board }, this.draw);
     }
 
-    initBoard = () =>
-    {
+    initBoard = () => {
         let board = [];
-        let height = this.height / this.tileWidth;
-        let width = this.width / this.tileWidth;
-        for (let i = 0; i < height; i++)
-        {
+        let height = Math.floor(this.state.height / this.state.tileSize);
+        let width = Math.floor(this.state.width / this.state.tileSize);
+
+        for (let i = 0; i < height; i++) {
             let row = [];
-            for (let j = 0; j < width; j++)
-            {
+            for (let j = 0; j < width; j++) {
                 row.push(0);
             }
             board.push([...row]);
@@ -227,33 +214,40 @@ class Game extends Component
         this.setState({ board: board }, this.update);
     }
 
-    onClick(e)
-    {
+    onClick(e) {
         var rect = ReactDOM.findDOMNode(this).getBoundingClientRect();
         let i = e.pageX - rect.left;
         let j = e.pageY - rect.top;
         const [x, y] = this.getCell(i, j);
-        if ((this.state.board !== undefined) && x < this.state.board.length && y < this.state.board[0].length)
-        {//de temps en temps le clic est détecté en dehors de la zone
-            if (this.state.board[x][y] === 1)
-            {
+        if ((this.state.board !== undefined) && x < this.state.board.length && y < this.state.board[0].length) {//de temps en temps le clic est détecté en dehors de la zone
+            if (this.state.board[x][y] === 1) {
                 this.setState({ board: update(this.state.board, { [x]: { [y]: { $set: 0 } } }) }, this.draw);
+                this.goLive();
             }
-            else
-            {
+            else {
                 this.setState({ board: update(this.state.board, { [x]: { [y]: { $set: 1 } } }) }, this.draw);
+                this.goLive();
             }
         }
     }
 
-    componentDidMount()
-    {
-        const context = this.canvas.current.getContext("2d");
-        this.setState({ context: context }, this.initBoard());
+    componentDidMount() {
+        this.updateWindowDimensions();
+        window.addEventListener('resize', this.updateWindowDimensions);
     }
 
-    setSpeed = () =>
-    {
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.updateWindowDimensions);
+    }
+
+    updateWindowDimensions() {
+        const context = this.canvas.current.getContext("2d");
+        clearTimeout(this.timeoutID);
+        this.setState({ width: window.innerWidth, height: window.innerHeight, context: context }, this.initBoard);
+    }
+
+    setSpeed = () => {
         this.ticks = 1000 / (this.state.gameSpeed);
         clearTimeout(this.timeoutID);
         this.timeoutID = setTimeout(
@@ -262,20 +256,25 @@ class Game extends Component
         );
     }
 
-    updateSpeed = (e) =>
-    {
-        //console.log('set speed:', this.sliderRanges[e])
+    updateSpeed = (e) => {
         this.setState({ gameSpeed: this.sliderRanges[e] }, this.setSpeed);
     }
 
-    updateGrid = (e) =>
-    {
-        //console.log('setting grid as', !this.state.toggleGridLines);
-        this.setState({toggleGridLines: !this.state.toggleGridLines}, this.draw);
+    updateGridLines = (e) => {
+        this.setState({ gridLines: !this.state.gridLines }, this.draw);
     }
 
-    handle(props)
-    {
+    updateMode = (e) => {
+        if (this.state.darkMode) {
+            document.body.style.backgroundColor = "white";
+        }
+        else {
+            document.body.style.backgroundColor = "black";
+        }
+        this.setState({ darkMode: !this.state.darkMode }, this.draw);
+    }
+
+    handle(props) {
         const { value, dragging, index, ...restProps } = props;
         let txtValues = {
             0: 'Ultra Slow',
@@ -301,19 +300,50 @@ class Game extends Component
             </SliderTooltip>
         );
     }
+    updateTileSize = (e) => {
+        this.setState({ tileSize: e.target.value }, this.initBoard);
+        this.draw();
+    }
 
-    render()
-    {
+    render() {
         return (
             <div>
-                <canvas onClick={this.onClick.bind(this)} ref={this.canvas} width={this.width} height={this.height} />
+                <canvas onClick={this.onClick.bind(this)} ref={this.canvas} width={this.state.width * .98} height={this.state.height * .98} />
                 <Draggable cancel=".rc-slider">{/* cancel permet de spécifier que l'on ne peut pas déplacer le paneau lorsqu'on touche au slider */}
                     <div className="UIWrapper">
-                        <button className="genericBtn pausePlay" onMouseDown={this.pause}>{this.state.btnText}</button>
-                        <button className="genericBtn clusterizeBtn" onMouseDown={this.seedBoard.bind(this)}>Clusterize</button>
-                        <button className="genericBtn restartBtn" onMouseDown={this.initBoard}>Restart</button>
-                        <FormControlLabel control={<Checkbox defaultChecked />} label="Show Grid" onChange={this.updateGrid.bind(this)} />
-                        <Slider id='iAmSpeed' min={0} max={9} marks={this.sliderRanges} defaultValue={3} step={null} onChange={this.updateSpeed.bind(this)} handle={this.handle.bind(this)} />
+                        <Grid container spacing={2}>
+                            <Grid item xs={3}>
+                                <button className="genericBtn pausePlay" onMouseDown={this.pause}>{this.state.btnText}</button>
+                            </Grid>
+                            <Grid item xs={3}>
+                                <button className="genericBtn clusterizeBtn" onMouseDown={this.seedBoard.bind(this)}>Clusterize</button>
+                            </Grid>
+                            <Grid item xs={3}>
+                                <button className="genericBtn restartBtn" onMouseDown={this.initBoard}>Restart</button>
+                            </Grid>
+                            <Grid item xs={3}>
+                                <FormControlLabel control={<Checkbox defaultChecked />} label="Show Grid" onChange={this.updateGridLines.bind(this)} />
+                            </Grid>
+                            <Grid item xs={9}>
+                                <TextField
+                                    type="number"
+                                    InputProps={{
+                                        inputProps: {
+                                            max: Math.floor(this.state.width / 10), min: 1
+                                        }
+                                    }}
+                                    value={this.state.tileSize}
+                                    onChange={this.updateTileSize.bind(this)}
+                                    label="Tile Size"
+                                />
+                            </Grid>
+                            <Grid item xs={3}>
+                                <FormControlLabel control={<Checkbox defaultChecked />} label="DarkMode" onChange={this.updateMode.bind(this)} />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Slider id='iAmSpeed' min={0} max={9} marks={this.sliderRanges} defaultValue={3} step={null} onChange={this.updateSpeed.bind(this)} handle={this.handle.bind(this)} />
+                            </Grid>
+                        </Grid>
                     </div>
                 </Draggable>
             </div>

@@ -222,11 +222,9 @@ class Game extends Component {
         if ((this.state.board !== undefined) && x < this.state.board.length && y < this.state.board[0].length) {//somehow a click event will randomly be detected outside of bounds
             if (this.state.board[x][y] === 1) {
                 this.setState({ board: update(this.state.board, { [x]: { [y]: { $set: 0 } } }) }, this.draw);
-                this.goLive();
             }
             else {
                 this.setState({ board: update(this.state.board, { [x]: { [y]: { $set: 1 } } }) }, this.draw);
-                this.goLive();
             }
         }
     }

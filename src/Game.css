@@ -103,26 +103,34 @@ html {
     margin: 0;
     padding: 0;
     flex: 1 1 auto;
-    height : 100%;
+    height: 100%;
 }
 .canvasContainer {
     margin: 0;
-    height : 100%;
+    height: 100%;
 }
 .fakeButton {
     width: 120px;
     display: inline-flex;
     vertical-align: middle;
 }
-.floatRight
-{
+.floatRight {
     float: right;
     vertical-align: middle;
     font-size: 20px;
 }
-.App, #root, html, body
-{
-
-    height : 100%;
+.App,
+#root,
+html,
+body {
+    height: 100%;
     overflow: hidden;
+}
+.MuiSlider-markLabel {
+    color: #0000 !important;
+}
+
+.blue-text
+{
+    color: #8080ea;
 }

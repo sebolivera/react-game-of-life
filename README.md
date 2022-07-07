@@ -1,3 +1,19 @@
+# Jeu de la vie React
+Un petit jeu de la vie pour m'apprendre à manipuler quelques fonctionnalités en react
+
+## Installation
+
+```npm install``` ou équivalent yarn
+
+## Lancement
+
+```npm run``` ou équivalent yarn
+
+# Comment jouer
+
+Vous pouvez placer des cases (via un clic) ou des formes (via le menu).
+
+
 # React Game Of Life
 
 A lil game of life in react to learn the language.
@@ -12,4 +28,4 @@ A lil game of life in react to learn the language.
 
 # How to play
 
-You don't, that's the point. Just messa round with the bottom panel. You can birth/kill cells by clicking them.
+You can place tiles by clicking, or entire shape by browsing the menu.
